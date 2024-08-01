@@ -7,23 +7,25 @@
   "main": "dev.js",
   "scripts": {
     "build": "cross-env NODE_ENV=production npm-run-all clean -p build:*",
-    "build:11ty": "eleventy --quiet",
+    "build:pug": "node_modules/.bin/pug src/pages -P -o docs -b .",
     "build:esbuild": "node build.mjs",
-    "build:stylus": "node_modules/.bin/stylus src/styles/1999.styl --out docs/assets/css/1999.css",
+    "build:stylus": "node_modules/.bin/stylus src/styles.styl --out docs/styles.css",
     "clean": "rimraf dist",
     "dev": "npm-run-all clean build:* -p dev:*",
-    "dev:11ty": "eleventy --serve --quiet",
+    "dev:http": "node_modules/.bin/http-server docs",
+    "dev:pug": "node_modules/.bin/pug src/pages -P -o docs -w -b .",
     "dev:esbuild": "node watch.mjs",
-    "dev:stylus": "node_modules/.bin/stylus -w src/styles/1999.styl --out docs/assets/css/1999.css",
-    "preinstall": "npm install stylus -g"
+    "dev:stylus": "node_modules/.bin/stylus -w src/styles.styl --out docs/styles.css"
   },
   "devDependencies": {
-    "@11ty/eleventy": "^2.0.1",
     "cross-env": "^7.0.3",
+    "d3": "^7.9.0",
     "esbuild": "0.19.1",
+    "http-server": "^14.1.1",
     "npm-run-all": "^4.1.5",
-    "parvus": "^2.6.0",
     "pug": "^3.0.2",
+    "pug-cli": "^1.0.0-alpha6",
+    "rimraf": "^6.0.1",
     "stylus": "^0.63.0"
   }
 }
