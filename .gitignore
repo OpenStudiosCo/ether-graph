@@ -1,0 +1,10 @@
+# Ignore vendor folders
+node_modules
+docs
+.vscode
+
+# SSH keys
+*.pem
+
+# Deployed env file
+.env

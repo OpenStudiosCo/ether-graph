@@ -1,0 +1,29 @@
+{
+  "name": "ether-graph",
+  "author": "Open Studios < team@openstudios.xyz >",
+  "repository": "https://github.com/OpenStudiosCo/ether-graph",
+  "version": "1.0.0",
+  "description": "Ethereum Graph",
+  "main": "dev.js",
+  "scripts": {
+    "build": "cross-env NODE_ENV=production npm-run-all clean -p build:*",
+    "build:11ty": "eleventy --quiet",
+    "build:esbuild": "node build.mjs",
+    "build:stylus": "node_modules/.bin/stylus src/styles/1999.styl --out docs/assets/css/1999.css",
+    "clean": "rimraf dist",
+    "dev": "npm-run-all clean build:* -p dev:*",
+    "dev:11ty": "eleventy --serve --quiet",
+    "dev:esbuild": "node watch.mjs",
+    "dev:stylus": "node_modules/.bin/stylus -w src/styles/1999.styl --out docs/assets/css/1999.css",
+    "preinstall": "npm install stylus -g"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^2.0.1",
+    "cross-env": "^7.0.3",
+    "esbuild": "0.19.1",
+    "npm-run-all": "^4.1.5",
+    "parvus": "^2.6.0",
+    "pug": "^3.0.2",
+    "stylus": "^0.63.0"
+  }
+}
