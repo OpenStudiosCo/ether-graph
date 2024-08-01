@@ -1,0 +1,35 @@
+{
+  "name": "0xaaaaaa1111111111111111111111111111111111",
+  "children": [
+    {
+      "name": "ETH",
+      "color": "#f58321",
+      "children": [
+        {"name": "ETH", "weight": 30.0, "code": "ETH"},
+        {"name": "Receive", "weight": 3.0, "code": "RCV"},
+        {"name": "Send", "weight": 0.0, "code": "SND"},
+        {"name": "Swap", "weight": 0.0, "code": "SWP"}
+      ]
+    },
+    {
+      "name": "DAI",
+      "color": "#ef1621",
+      "children": [
+        {"name": "DAI", "weight": 30.0, "code": "DAI"},
+        {"name": "Receive", "weight": 3.0, "code": "RCV"},
+        {"name": "Send", "weight": 0.0, "code": "SND"},
+        {"name": "Swap", "weight": 0.0, "code": "SWP"}
+      ]
+    },
+    {
+      "name": "USDC",
+      "color": "#77bc45",
+      "children": [
+        {"name": "USDC", "weight": 30.0, "code": "USDC"},
+        {"name": "Receive", "weight": 3.0, "code": "RCV"},
+        {"name": "Send", "weight": 0.0, "code": "SND"},
+        {"name": "Swap", "weight": 0.0, "code": "SWP"}
+      ]
+    }
+  ]
+}

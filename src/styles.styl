@@ -10,58 +10,57 @@ html, body {
     color: text-color;
 }
 
-// Dummy styles from d3-voronoi-treemap example:
-svg {
-background-color: rgb(250,250,250);
+.legend text {
+    fill: text-color;
 }
 
-#title {
-letter-spacing: 4px;
-font-weight: 700;
-font-size: x-large;
-}
+// Dummy styles from d3-voronoi-treemap example:
+
+
 
 text.tiny {
 font-size: 10pt;
 }
 text.light {
+    
 fill: lightgrey
 }
 
 .world {
-stroke: lightgrey;
+    stroke: lightgrey;
     stroke-width: 4px;
 }
 
 .cell {
-stroke: white;
-stroke-width: 1px;
+    stroke: white;
+    stroke-width: 1px;
 }
 
 .label {
-text-anchor: middle;
-fill: white;
+    text-anchor: middle;
+    fill: white;
 }
 
 .label>.name {
-dominant-baseline: text-after-edge;
+    dominant-baseline: text-before-edge;
+
 }
 
 .label>.value {
-dominant-baseline: text-before-edge;
+    dominant-baseline: text-after-edge;
 }
 
 .hoverer {
-fill: transparent;
-stroke: white;
-stroke-width:0px;
+    fill: transparent;
+    stroke: white;
+    stroke-width:0px;
 }
 
 .hoverer:hover {
-stroke-width: 3px;
+    stroke-width: 3px;
 }
 
 .legend-color {
-stroke-width: 1px;
-stroke:darkgrey;
+    stroke-width: 1px;
+    stroke:darkgrey;
 }
