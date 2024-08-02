@@ -1,11 +1,14 @@
 import * as d3 from "d3";
 import { voronoiTreemap } from "d3-voronoi-treemap";
 
-//begin: constants
-var _2PI = 2 * Math.PI;
-//end: constants
+window.updateGraphs = updateGraphs;
 
-//begin: layout conf.
+// Graphing variables
+const _voronoiTreemap = voronoiTreemap();
+let hierarchy, circlingPolygon;
+const fontScale = d3.scaleLinear();
+let svg, drawingArea, treemapContainer;
+var _2PI = 2 * Math.PI;
 var svgWidth = 960,
     svgHeight = 500,
     margin = { top: 10, right: 10, bottom: 10, left: 10 },
@@ -19,52 +22,74 @@ var svgWidth = 960,
     legendsMinY = height - 20,
     treemapRadius = 205,
     treemapCenter = [ halfWidth, halfHeight + 5 ];
-//end: layout conf.
 
-//begin: treemap conf.
-var _voronoiTreemap = voronoiTreemap();
-var hierarchy, circlingPolygon;
-//end: treemap conf.
+// Data variables
+let walletId = '0xaaaaaa1111111111111111111111111111111111';
+let accounts = []
+let dataTable = {};
+let weekNumbers = [];
 
-//begin: drawing conf.
-var fontScale = d3.scaleLinear();
-//end: drawing conf.
+// Grab the data file
 
-//begin: reusable d3Selection
-var svg, drawingArea, treemapContainer;
-//end: reusable d3Selection
+d3.csv( "sample-gpt-v2.csv" ).then( function ( rootData ) {
 
-d3.json( "globalEconomyByGDP.json" ).then( function ( rootData ) {
-    initData();
-    initLayout( rootData );
-    hierarchy = d3.hierarchy( rootData ).sum( function ( d ) { return d.weight; } );
-    _voronoiTreemap
-        .clip( circlingPolygon )
-        ( hierarchy );
+    rootData.forEach( function ( csvRow ) {
 
-    drawTreemap( hierarchy );
-} );
+        transaction = {};
+        transaction.id = csvRow[ 'TransactionID' ];
+        transaction.type = csvRow[ 'Type' ];
+        transaction.timestamp = csvRow[ 'UnixTimestamp' ];
+        transaction.created = csvRow[ 'NormalTimestamp' ];
+        transaction.from = csvRow[ 'FromWallet' ];
+        transaction.to = csvRow[ 'ToWallet' ];
+        transaction.amount = csvRow[ 'Amount' ];
+        transaction.currency = csvRow[ 'Currency' ];
+        transaction.price = csvRow[ 'ETH_USD_Price' ];
 
-function initData( rootData ) {
-    circlingPolygon = computeCirclingPolygon( treemapRadius );
-    fontScale.domain( [ 3, 20 ] ).range( [ 8, 20 ] ).clamp( true );
-}
+        let weekNumber = new Date( transaction.created ).getWeek();
 
-function computeCirclingPolygon( radius ) {
-    var points = 60,
-        increment = _2PI / points,
-        circlingPolygon = [];
+        if ( !( weekNumber in dataTable ) ) {
+            dataTable[ weekNumber ] = [];
+            weekNumbers.push( parseInt( weekNumber ) );
+        }
+        dataTable[ weekNumber ].push( transaction );
 
-    for ( var a = 0, i = 0; i < points; i++, a += increment ) {
-        circlingPolygon.push(
-            [ radius + radius * Math.cos( a ), radius + radius * Math.sin( a ) ]
-        )
+    } );
+
+    const weekDataList = document.querySelector( '#weeks' );
+
+    for ( weekNumber in dataTable ) {
+        const option = document.createElement( 'option' );
+        option.setAttribute( 'value', weekNumber );
+        option.setAttribute( 'label', 'Week ' + weekNumber );
+        weekDataList.appendChild( option );
     }
 
-    return circlingPolygon;
-};
+    const timeline = document.querySelector( '#timeline' );
+    timeline.setAttribute( 'min', Math.min( ...weekNumbers ) );
+    timeline.setAttribute( 'max', Math.max( ...weekNumbers ) );
+    timeline.setAttribute( 'value', Math.min( ...weekNumbers ) );
 
-function initLayout( rootData ) {
+    updateGraphs();
+
+} );
+
+function clearGraphs() {
+
+}
+
+function updateGraphs() {
+    clearGraphs();
+
+    const timeline = document.querySelector( '#timeline' );
+    const timelineLabel = document.querySelector( 'h2[for="timeline"]' );
+    timelineLabel.innerHTML = 'Week ' + timeline.value;
+
+    // initData();
+    circlingPolygon = computeCirclingPolygon( 205 );
+    fontScale.domain( [ 3, 20 ] ).range( [ 8, 20 ] ).clamp( true );
+
+    // initLayout( rootData );
     svg = d3.select( "svg#graph" )
         .attr( "width", svgWidth )
         .attr( "height", svgHeight );
@@ -82,36 +107,104 @@ function initLayout( rootData ) {
         .attr( "transform", "translate(" + [ -treemapRadius, -treemapRadius ] + ")" )
         .attr( "d", "M" + circlingPolygon.join( "," ) + "Z" );
 
-    //drawTitle();
-    //drawFooter();
-    drawLegends( rootData );
+    let selectedRangeData = dataTable[ timeline.value ];
+    let currencies = [];
+
+    var colours = ['#48cbd9', '#79e7e7', '#605a83', '#bd948c', '#7e779e'];
+
+    selectedRangeData.forEach( ( dataElm ) => {
+        let currency = {};
+        currency.name = dataElm.currency;
+        currency.color = colours[Math.floor(Math.random() * colours.length)];
+        currencies.push( currency );
+    } )
+
+    console.log( selectedRangeData );
+
+    // drawLegends
+    var legendHeight = 13,
+        interLegend = 4,
+        colorWidth = legendHeight * 6;
+
+    var legendContainer = drawingArea.append( "g" )
+        .classed( "legend", true )
+        .attr( "transform", "translate(" + [ 0, legendsMinY ] + ")" );
+
+    var legends = legendContainer.selectAll( ".legend" )
+        .data( currencies )
+        .enter();
+
+    var legend = legends.append( "g" )
+        .classed( "legend", true )
+        .attr( "transform", function ( d, i ) {
+            return "translate(" + [ 0, -i * ( legendHeight + interLegend ) ] + ")";
+        } )
+
+    legend.append( "rect" )
+        .classed( "legend-color", true )
+        .attr( "y", -legendHeight )
+        .attr( "width", colorWidth )
+        .attr( "height", legendHeight )
+        .style( "fill", function ( d ) { return d.color; } );
+    legend.append( "text" )
+        .classed( "tiny", true )
+        .attr( "transform", "translate(" + [ colorWidth + 5, -2 ] + ")" )
+        .text( function ( d ) { return d.name; } );
+
+    legendContainer.append( "text" )
+        .attr( "transform", "translate(" + [ 0, -currencies.length * ( legendHeight + interLegend ) - 5 ] + ")" )
+        .text( "Currencies" );
+
+    // hierarchy = d3.hierarchy( rootData ).sum( function ( d ) { return d.weight; } );
+    // _voronoiTreemap
+    //     .clip( circlingPolygon )
+    //     ( hierarchy );
+
+    // drawTreemap( hierarchy );
 }
 
-function drawTitle() {
-    drawingArea.append( "text" )
-        .attr( "id", "title" )
-        .attr( "transform", "translate(" + [ halfWidth, titleY ] + ")" )
-        .attr( "text-anchor", "middle" )
-        .text( "The Global Economy by GDP (as of 01/2017)" )
+// This script is released to the public domain and may be used, modified and
+// distributed without restrictions. Attribution not necessary but appreciated.
+// Source: https://weeknumber.com/how-to/javascript
+
+// Returns the ISO week of the date.
+Date.prototype.getWeek = function () {
+    var date = new Date( this.getTime() );
+    date.setHours( 0, 0, 0, 0 );
+    // Thursday in current week decides the year.
+    date.setDate( date.getDate() + 3 - ( date.getDay() + 6 ) % 7 );
+    // January 4 is always in week 1.
+    var week1 = new Date( date.getFullYear(), 0, 4 );
+    // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+    return 1 + Math.round( ( ( date.getTime() - week1.getTime() ) / 86400000
+        - 3 + ( week1.getDay() + 6 ) % 7 ) / 7 );
 }
 
-function drawFooter() {
-    drawingArea.append( "text" )
-        .classed( "tiny light", true )
-        .attr( "transform", "translate(" + [ 0, height ] + ")" )
-        .attr( "text-anchor", "start" )
-        .text( "Remake of HowMuch.net's article 'The Global Economy by GDP'" )
-    drawingArea.append( "text" )
-        .classed( "tiny light", true )
-        .attr( "transform", "translate(" + [ halfWidth, height ] + ")" )
-        .attr( "text-anchor", "middle" )
-        .text( "by @_Kcnarf" )
-    drawingArea.append( "text" )
-        .classed( "tiny light", true )
-        .attr( "transform", "translate(" + [ width, height ] + ")" )
-        .attr( "text-anchor", "end" )
-        .text( "bl.ocks.org/Kcnarf/fa95aa7b076f537c00aed614c29bb568" )
+// Returns the four-digit year corresponding to the ISO week of the date.
+Date.prototype.getWeekYear = function () {
+    var date = new Date( this.getTime() );
+    date.setDate( date.getDate() + 3 - ( date.getDay() + 6 ) % 7 );
+    return date.getFullYear();
 }
+
+// From the d3-voronoi-treemap example.
+function computeCirclingPolygon( radius ) {
+    var points = 60,
+        increment = _2PI / points,
+        circlingPolygon = [];
+
+    for ( var a = 0, i = 0; i < points; i++, a += increment ) {
+        circlingPolygon.push(
+            [ radius + radius * Math.cos( a ), radius + radius * Math.sin( a ) ]
+        )
+    }
+
+    return circlingPolygon;
+};
+
+/**
+ * Sample functions and code
+ */
 
 function drawLegends( rootData ) {
     var legendHeight = 13,
