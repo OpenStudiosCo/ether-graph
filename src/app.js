@@ -65,7 +65,7 @@ function computeCirclingPolygon( radius ) {
 };
 
 function initLayout( rootData ) {
-    svg = d3.select( "svg" )
+    svg = d3.select( "svg#graph" )
         .attr( "width", svgWidth )
         .attr( "height", svgHeight );
 
