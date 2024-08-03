@@ -75,56 +75,56 @@ export function updateGraphs() {
             currency.balance = 0.0;
             currency.children = [];
 
-            tempRoot.children.push(currency);
+            tempRoot.children.push( currency );
             displayedCurrencies[ transaction.currency ] = currency;
         }
 
         displayedCurrencies[ transaction.currency ].balance += parseFloat( transaction.amount );
         displayedCurrencies[ transaction.currency ].children.push( transaction );
 
-        let tableRow = document.createElement('tr');
-        let fieldId = document.createElement('td');
+        let tableRow = document.createElement( 'tr' );
+        let fieldId = document.createElement( 'td' );
         fieldId.innerHTML = transaction.id;
         tableRow.append( fieldId );
 
-        let fieldType = document.createElement('td');
+        let fieldType = document.createElement( 'td' );
         fieldType.innerHTML = transaction.type;
         tableRow.append( fieldType );
 
-        let fieldTimestamp = document.createElement('td');
+        let fieldTimestamp = document.createElement( 'td' );
         fieldTimestamp.innerHTML = transaction.timestamp;
         tableRow.append( fieldTimestamp );
-        
-        let fieldCreated = document.createElement('td');
+
+        let fieldCreated = document.createElement( 'td' );
         fieldCreated.innerHTML = transaction.created;
         tableRow.append( fieldCreated );
 
-        let fieldFrom = document.createElement('td');
+        let fieldFrom = document.createElement( 'td' );
         fieldFrom.innerHTML = transaction.from;
         tableRow.append( fieldFrom );
 
-        let fieldTo = document.createElement('td');
+        let fieldTo = document.createElement( 'td' );
         fieldTo.innerHTML = transaction.to;
         tableRow.append( fieldTo );
 
-        let fieldAmount = document.createElement('td');
+        let fieldAmount = document.createElement( 'td' );
         fieldAmount.innerHTML = transaction.amount;
         tableRow.append( fieldAmount );
 
-        let fieldCurrency = document.createElement('td');
+        let fieldCurrency = document.createElement( 'td' );
         fieldCurrency.innerHTML = transaction.currency;
         tableRow.append( fieldCurrency );
 
-        let fieldPrice = document.createElement('td');
+        let fieldPrice = document.createElement( 'td' );
         fieldPrice.innerHTML = transaction.price;
         tableRow.append( fieldPrice );
 
-        transactionTable.append(tableRow);
+        transactionTable.append( tableRow );
 
     } );
 
     for ( currency in displayedCurrencies ) {
-        currencies.push( displayedCurrencies[currency] );
+        currencies.push( displayedCurrencies[ currency ] );
     }
 
     // drawLegends
@@ -171,7 +171,7 @@ export function updateGraphs() {
 }
 
 function clearGraphs() {
-    d3.selectAll("svg#graph > *").remove();
+    d3.selectAll( "svg#graph > *" ).remove();
 }
 
 function drawTreemap( hierarchy, tempRoot ) {
