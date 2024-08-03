@@ -1,0 +1,100 @@
+html,
+body {
+  background: #37367b;
+  color: #c6c5d4;
+}
+datalist {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  writing-mode: vertical-lr;
+  width: 80%;
+  margin: 0 auto;
+}
+option {
+  padding: 0;
+}
+input[type="range"] {
+  width: 200px;
+  margin: 0;
+}
+.wrapper {
+  width: 80vw;
+  margin: 0 auto;
+  text-align: center;
+}
+h1 {
+  text-align: left;
+}
+#timeline {
+  width: 80%;
+}
+.legend text {
+  fill: #c6c5d4;
+}
+text.tiny {
+  font-size: 10pt;
+}
+text.light {
+  fill: #d3d3d3;
+}
+.world {
+  stroke: #d3d3d3;
+  stroke-width: 4px;
+}
+.cell {
+  stroke: #fff;
+  stroke-width: 1px;
+}
+.label {
+  text-anchor: middle;
+  fill: #fff;
+}
+.label>.name {
+  dominant-baseline: text-before-edge;
+}
+.label>.value {
+  dominant-baseline: text-after-edge;
+}
+.hoverer {
+  fill: transparent;
+  stroke: #fff;
+  stroke-width: 0px;
+}
+.hoverer:hover {
+  stroke-width: 3px;
+}
+.legend-color {
+  stroke-width: 1px;
+  stroke: #a9a9a9;
+}
+table#transactions {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.8rem;
+  border-collapse: collapse;
+  width: 100%;
+}
+#transactions td,
+#transactions th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+#transactions tr:nth-child(even) {
+  background-color: #333;
+}
+#transactions tr:hover {
+  background-color: #666;
+}
+#transactions thead {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #212121;
+  color: #fff;
+}
+button#timeline_control.paused .icon-pause {
+  display: none;
+}
+button#timeline_control.playing .icon-play {
+  display: none;
+}

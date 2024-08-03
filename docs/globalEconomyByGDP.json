@@ -1,0 +1,40 @@
+{
+  "name": "0xaaaaaa1111111111111111111111111111111111",
+  "children": [
+    {
+      "name": "ETH",
+      "color": "#48cbd9",
+      "children": [
+        {"name": "Ether", "weight": 50.0, "code": "ETH"}
+      ]
+    },
+    {
+      "name": "DAI",
+      "color": "#79e7e7",
+      "children": [
+        {"name": "DAI", "weight": 15.0, "code": "DAI"}
+      ]
+    },
+    {
+      "name": "USDC",
+      "color": "#605a83",
+      "children": [
+        {"name": "USD Coin", "weight": 35.0, "code": "USDC"}
+      ]
+    },
+    {
+      "name": "BNB",
+      "color": "#bd948c",
+      "children": [
+        {"name": "Binance Coin", "weight": 35.0, "code": "BNB"}
+      ]
+    },
+    {
+      "name": "BTC",
+      "color": "#7e779e",
+      "children": [
+        {"name": "Bitcoin", "weight": 35.0, "code": "BTC"}
+      ]
+    }
+  ]
+}
