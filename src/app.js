@@ -75,7 +75,7 @@ d3.csv( "sample-gpt-v2.csv" ).then( function ( rootData ) {
 } );
 
 function clearGraphs() {
-
+    // @todo: clear the graphs between selections
 }
 
 function updateGraphs() {
@@ -89,7 +89,7 @@ function updateGraphs() {
     circlingPolygon = computeCirclingPolygon( 205 );
     fontScale.domain( [ 3, 20 ] ).range( [ 8, 20 ] ).clamp( true );
 
-    // initLayout( rootData );
+    // initLayout( );
     svg = d3.select( "svg#graph" )
         .attr( "width", svgWidth )
         .attr( "height", svgHeight );
@@ -107,19 +107,38 @@ function updateGraphs() {
         .attr( "transform", "translate(" + [ -treemapRadius, -treemapRadius ] + ")" )
         .attr( "d", "M" + circlingPolygon.join( "," ) + "Z" );
 
-    let selectedRangeData = dataTable[ timeline.value ];
+    let tempRoot = {
+        name: walletId,
+        children: []
+    };
+    let transactions = dataTable[ timeline.value ];
     let currencies = [];
 
-    var colours = ['#48cbd9', '#79e7e7', '#605a83', '#bd948c', '#7e779e'];
+    var colours = [ '#48cbd9', '#79e7e7', '#605a83', '#bd948c', '#7e779e' ];
 
-    selectedRangeData.forEach( ( dataElm ) => {
-        let currency = {};
-        currency.name = dataElm.currency;
-        currency.color = colours[Math.floor(Math.random() * colours.length)];
-        currencies.push( currency );
-    } )
+    var displayedCurrencies = {};
+    transactions.forEach( ( transaction ) => {
 
-    console.log( selectedRangeData );
+        if ( !( transaction.currency in displayedCurrencies ) ) {
+            let currency = {};
+            currency.code = transaction.currency;
+            currency.name = transaction.currency;
+            currency.color = colours[ Math.floor( Math.random() * colours.length ) ];
+            currency.balance = 0.0;
+            currency.children = [];
+
+            tempRoot.children.push(currency);
+            displayedCurrencies[ transaction.currency ] = currency;
+        }
+
+        displayedCurrencies[ transaction.currency ].balance += parseFloat( transaction.amount );
+        displayedCurrencies[ transaction.currency ].children.push( transaction );
+
+    } );
+
+    for ( currency in displayedCurrencies ) {
+        currencies.push( displayedCurrencies[currency] );
+    }
 
     // drawLegends
     var legendHeight = 13,
@@ -155,12 +174,70 @@ function updateGraphs() {
         .attr( "transform", "translate(" + [ 0, -currencies.length * ( legendHeight + interLegend ) - 5 ] + ")" )
         .text( "Currencies" );
 
-    // hierarchy = d3.hierarchy( rootData ).sum( function ( d ) { return d.weight; } );
-    // _voronoiTreemap
-    //     .clip( circlingPolygon )
-    //     ( hierarchy );
+    hierarchy = d3.hierarchy( tempRoot ).sum( function ( d ) { return d.amount; } );
 
-    // drawTreemap( hierarchy );
+    _voronoiTreemap
+        .clip( circlingPolygon )
+        ( hierarchy );
+
+    drawTreemap( hierarchy, tempRoot );
+}
+
+
+function drawTreemap( hierarchy, tempRoot ) {
+    var leaves = hierarchy.leaves();
+    let currencies = tempRoot.children.reverse()
+
+    var cells = treemapContainer.append( "g" )
+        .classed( 'cells', true )
+        .attr( "transform", "translate(" + [ -treemapRadius, -treemapRadius ] + ")" )
+        .selectAll( ".cell" )
+        .data( leaves )
+        .enter()
+        .append( "path" )
+        .classed( "cell", true )
+        .attr( "d", function ( d ) { return "M" + d.polygon.join( "," ) + "z"; } )
+        .style( "fill", function ( d ) {
+            return d.parent.data.color;
+        } );
+
+    var labels = treemapContainer.append( "g" )
+        .classed( 'labels', true )
+        .attr( "transform", "translate(" + [ -treemapRadius, -treemapRadius ] + ")" )
+        .selectAll( ".label" )
+        .data( leaves )
+        .enter()
+        .append( "g" )
+        .classed( "label", true )
+        .attr( "transform", function ( d ) {
+            return "translate(" + [ d.polygon.site.x, d.polygon.site.y ] + ")";
+        } )
+        .style( "font-size", function ( d ) {
+            return fontScale( d.parent.data.balance );
+        } );
+
+
+    labels.append( "text" )
+        .classed( "value", true )
+        .text( function ( d ) { return d.parent.data.balance; } );
+    labels.append( "text" )
+        .classed( "name", true )
+        .html( function ( d ) {
+            return ( d.parent.data.balance < 1 ) ? d.parent.data.code : d.parent.data.name;
+        } );
+
+    var hoverers = treemapContainer.append( "g" )
+        .classed( 'hoverers', true )
+        .attr( "transform", "translate(" + [ -treemapRadius, -treemapRadius ] + ")" )
+        .selectAll( ".hoverer" )
+        .data( leaves )
+        .enter()
+        .append( "path" )
+        .classed( "hoverer", true )
+        .attr( "d", function ( d ) { return "M" + d.polygon.join( "," ) + "z"; } );
+
+    hoverers.append( "title" )
+        .text( function ( d ) { return parseFloat( d.value ).toFixed( 2 ) + " " + d.data.name; } );
 }
 
 // This script is released to the public domain and may be used, modified and
@@ -201,96 +278,3 @@ function computeCirclingPolygon( radius ) {
 
     return circlingPolygon;
 };
-
-/**
- * Sample functions and code
- */
-
-function drawLegends( rootData ) {
-    var legendHeight = 13,
-        interLegend = 4,
-        colorWidth = legendHeight * 6,
-        currencies = rootData.children.reverse();
-
-    var legendContainer = drawingArea.append( "g" )
-        .classed( "legend", true )
-        .attr( "transform", "translate(" + [ 0, legendsMinY ] + ")" );
-
-    var legends = legendContainer.selectAll( ".legend" )
-        .data( currencies )
-        .enter();
-
-    var legend = legends.append( "g" )
-        .classed( "legend", true )
-        .attr( "transform", function ( d, i ) {
-            return "translate(" + [ 0, -i * ( legendHeight + interLegend ) ] + ")";
-        } )
-
-    legend.append( "rect" )
-        .classed( "legend-color", true )
-        .attr( "y", -legendHeight )
-        .attr( "width", colorWidth )
-        .attr( "height", legendHeight )
-        .style( "fill", function ( d ) { return d.color; } );
-    legend.append( "text" )
-        .classed( "tiny", true )
-        .attr( "transform", "translate(" + [ colorWidth + 5, -2 ] + ")" )
-        .text( function ( d ) { return d.name; } );
-
-    legendContainer.append( "text" )
-        .attr( "transform", "translate(" + [ 0, -currencies.length * ( legendHeight + interLegend ) - 5 ] + ")" )
-        .text( "Currencies" );
-}
-
-function drawTreemap( hierarchy ) {
-    var leaves = hierarchy.leaves();
-
-    var cells = treemapContainer.append( "g" )
-        .classed( 'cells', true )
-        .attr( "transform", "translate(" + [ -treemapRadius, -treemapRadius ] + ")" )
-        .selectAll( ".cell" )
-        .data( leaves )
-        .enter()
-        .append( "path" )
-        .classed( "cell", true )
-        .attr( "d", function ( d ) { return "M" + d.polygon.join( "," ) + "z"; } )
-        .style( "fill", function ( d ) {
-            return d.parent.data.color;
-        } );
-
-    var labels = treemapContainer.append( "g" )
-        .classed( 'labels', true )
-        .attr( "transform", "translate(" + [ -treemapRadius, -treemapRadius ] + ")" )
-        .selectAll( ".label" )
-        .data( leaves )
-        .enter()
-        .append( "g" )
-        .classed( "label", true )
-        .attr( "transform", function ( d ) {
-            return "translate(" + [ d.polygon.site.x, d.polygon.site.y ] + ")";
-        } )
-        .style( "font-size", function ( d ) { return fontScale( d.data.weight ); } );
-
-
-    labels.append( "text" )
-        .classed( "value", true )
-        .text( function ( d ) { return d.data.weight; } );
-    labels.append( "text" )
-        .classed( "name", true )
-        .html( function ( d ) {
-            return ( d.data.weight < 1 ) ? d.data.code : d.data.name;
-        } );
-
-    var hoverers = treemapContainer.append( "g" )
-        .classed( 'hoverers', true )
-        .attr( "transform", "translate(" + [ -treemapRadius, -treemapRadius ] + ")" )
-        .selectAll( ".hoverer" )
-        .data( leaves )
-        .enter()
-        .append( "path" )
-        .classed( "hoverer", true )
-        .attr( "d", function ( d ) { return "M" + d.polygon.join( "," ) + "z"; } );
-
-    hoverers.append( "title" )
-        .text( function ( d ) { return parseFloat( d.value ).toFixed( 2 ) + " " + d.data.name; } );
-}
