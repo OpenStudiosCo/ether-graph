@@ -7,10 +7,10 @@ import { processCSV } from './app/data';
 import './app/helpers';
 import { updateGraphs } from './app/graph';
 
+// Functions used by UI and the app.
 window.updateGraphs = updateGraphs;
 
-// Data variables
-
+// Variables used across the graphing app.
 window.dataTable = {};
 window.weekNumbers = [];
 

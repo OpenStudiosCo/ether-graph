@@ -130,7 +130,7 @@ export function updateGraphs() {
 }
 
 function clearGraphs() {
-    // @todo: clear the graphs between selections
+    d3.selectAll("svg > *").remove();
 }
 
 function drawTreemap( hierarchy, tempRoot ) {
