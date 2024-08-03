@@ -63,8 +63,10 @@ export function updateGraphs() {
     var colours = [ '#48cbd9', '#79e7e7', '#605a83', '#bd948c', '#7e779e' ];
 
     var displayedCurrencies = {};
-    transactions.forEach( ( transaction ) => {
 
+    var transactionTable = document.querySelector( 'table#transactions tbody' );
+    transactionTable.innerHTML = '';
+    transactions.forEach( ( transaction ) => {
         if ( !( transaction.currency in displayedCurrencies ) ) {
             let currency = {};
             currency.code = transaction.currency;
@@ -79,6 +81,45 @@ export function updateGraphs() {
 
         displayedCurrencies[ transaction.currency ].balance += parseFloat( transaction.amount );
         displayedCurrencies[ transaction.currency ].children.push( transaction );
+
+        let tableRow = document.createElement('tr');
+        let fieldId = document.createElement('td');
+        fieldId.innerHTML = transaction.id;
+        tableRow.append( fieldId );
+
+        let fieldType = document.createElement('td');
+        fieldType.innerHTML = transaction.type;
+        tableRow.append( fieldType );
+
+        let fieldTimestamp = document.createElement('td');
+        fieldTimestamp.innerHTML = transaction.timestamp;
+        tableRow.append( fieldTimestamp );
+        
+        let fieldCreated = document.createElement('td');
+        fieldCreated.innerHTML = transaction.created;
+        tableRow.append( fieldCreated );
+
+        let fieldFrom = document.createElement('td');
+        fieldFrom.innerHTML = transaction.from;
+        tableRow.append( fieldFrom );
+
+        let fieldTo = document.createElement('td');
+        fieldTo.innerHTML = transaction.to;
+        tableRow.append( fieldTo );
+
+        let fieldAmount = document.createElement('td');
+        fieldAmount.innerHTML = transaction.amount;
+        tableRow.append( fieldAmount );
+
+        let fieldCurrency = document.createElement('td');
+        fieldCurrency.innerHTML = transaction.currency;
+        tableRow.append( fieldCurrency );
+
+        let fieldPrice = document.createElement('td');
+        fieldPrice.innerHTML = transaction.price;
+        tableRow.append( fieldPrice );
+
+        transactionTable.append(tableRow);
 
     } );
 
@@ -130,7 +171,7 @@ export function updateGraphs() {
 }
 
 function clearGraphs() {
-    d3.selectAll("svg > *").remove();
+    d3.selectAll("svg#graph > *").remove();
 }
 
 function drawTreemap( hierarchy, tempRoot ) {
@@ -186,7 +227,7 @@ function drawTreemap( hierarchy, tempRoot ) {
         .attr( "d", function ( d ) { return "M" + d.polygon.join( "," ) + "z"; } );
 
     hoverers.append( "title" )
-        .text( function ( d ) { return parseFloat( d.value ).toFixed( 2 ) + " " + d.data.name; } );
+        .text( function ( d ) { return parseFloat( d.value ).toFixed( 2 ) + " " + d.parent.data.name; } );
 }
 
 
